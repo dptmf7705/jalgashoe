@@ -18,14 +18,13 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".view.activity.MainActivity" />
-        <activity android:name=".view.activity.LoginActivity">
-
-        </activity>
-        <activity android:name=".view.activity.JoinActivity" />
-        <activity android:name=".view.activity.SettingActivity" />
-        <activity android:name=".view.activity.LaunchActivity"
-            android:theme="@style/LaunchTheme">
+        <activity android:name=".launch.login.LoginActivity" />
+        <activity android:name=".launch.join.JoinActivity" />
+        <activity android:name=".profile.setting.SettingActivity" />
+        <activity android:name=".launch.LaunchActivity" />
+        <activity android:name=".profile.setting.DeviceListActivity" />
+        <activity android:name=".searchPoi.SearchActivity" />
+        <activity android:name=".map.MapActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

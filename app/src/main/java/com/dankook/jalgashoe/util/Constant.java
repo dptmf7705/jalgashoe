@@ -7,6 +7,7 @@ import com.dankook.jalgashoe.R;
  */
 
 public class Constant {
+
     public static final int TAB_COUNT = 4;
 
     public static final int[] TAB_ICON = { // 하단 탭 버튼 아이콘

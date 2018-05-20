@@ -10,4 +10,9 @@
     <color name="mainBrown">#BFBF82</color>
     <color name="darkBrown">#7B7B4A</color>
     <color name="blue">#deebf7</color>
+    <color name="lightGray">#eeeeee</color>
+    <color name="darkGray">#bebebe</color>
+    <color name="transBlack">#c8000000</color>
+    <color name="primaryWhite">#fafafa</color>
+    <color name="transWhite">#c8fafafa</color>
 </resources>

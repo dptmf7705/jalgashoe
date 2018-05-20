@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <data>
+        <variable
+            name="viewModel"
+            type="com.dankook.jalgashoe.searchPoi.SearchViewModel"/>
+    </data>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:id="@+id/poi_map_view"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:layout_marginTop="10dp"
+            android:padding="1dp"
+            android:background="@drawable/border_box"
+            android:orientation="horizontal"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginTop="10dp"
+            android:orientation="horizontal">
+
+            <Button
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:text="출발지로 설정"
+                android:textSize="15dp"
+                android:onClick="@{(v) -> viewModel.onDepartureClick()}"
+                android:background="@drawable/border_box_white"
+                android:layout_weight="1"/>
+
+            <Space
+                android:layout_width="10dp"
+                android:layout_height="match_parent" />
+
+            <Button
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:text="목적지로 설정"
+                android:textSize="15dp"
+                android:onClick="@{(v) -> viewModel.onDestinationClick()}"
+                android:background="@drawable/border_box_white"
+                android:layout_weight="1"/>
+
+        </LinearLayout>
+
+        <ListView
+            android:id="@+id/poi_list_view"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/border_box_white"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:poiItems="@{viewModel.poiItems}"/>
+
+    </LinearLayout>
+
+</layout>
