@@ -4,35 +4,35 @@ import android.content.Intent;
 import android.databinding.ObservableBoolean;
 import android.databinding.ObservableField;
 import android.graphics.Bitmap;
+import android.graphics.DashPathEffect;
 import android.os.Bundle;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.animation.GlideAnimation;
-import com.bumptech.glide.request.target.SimpleTarget;
+import com.dankook.jalgashoe.Constant;
 import com.dankook.jalgashoe.R;
 import com.dankook.jalgashoe.searchPoi.SearchActivity;
+import com.dankook.jalgashoe.util.BitmapTextUtil;
 import com.skt.Tmap.TMapData;
 import com.skt.Tmap.TMapGpsManager;
 import com.skt.Tmap.TMapInfo;
-import com.skt.Tmap.TMapMarkerItem;
 import com.skt.Tmap.TMapPoint;
 import com.skt.Tmap.TMapPolyLine;
 import com.skt.Tmap.TMapView;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import java.util.ArrayList;
+
+import static com.dankook.jalgashoe.Constant.ResponseParam.TAG_NODE_TYPE;
+import static com.dankook.jalgashoe.Constant.ResponseParam.TAG_PLACEMARK;
 
 /**
  * Created by yeseul on 2018-05-02.
  */
 
 public class MapViewModel {
-
-    public static final String MARKER_DEPARTURE = "MARKER_DEPARTURE";
-    public static final String MARKER_DESTINATION = "MARKER_DESTINATION";
 
     public final ObservableField<String> currentAddress = new ObservableField<>("현재 위치 찾는중 ...");
     public final ObservableField<String> departureAddress = new ObservableField<>();
@@ -92,22 +92,30 @@ public class MapViewModel {
                 isMyLocation.set(false);
             }
         });
+
+        Bitmap startIcon = BitmapTextUtil.writeTextOnDrawable(mapView.getContext().getResources(), R.drawable.ic_location_active, 130, "출발");
+        Bitmap endIcon = BitmapTextUtil.writeTextOnDrawable(mapView.getContext().getResources(), R.drawable.ic_marker_destination, 130, "도착");
+        mapView.setTMapPathIcon(startIcon, endIcon);
     }
 
     // 위치 정보 설정
     private void setupGpsManager(){
-        gpsManager.setMinTime(1000); // 위치 변경 인식 시간간격 설정
-        gpsManager.setMinDistance(5); // 위치 변경 인식 최소거리 설정
+        gpsManager.setMinTime(100); // 위치 변경 인식 시간간격 설정
+        gpsManager.setMinDistance(0); // 위치 변경 인식 최소거리 설정
 
         // GPS_PROVIDER : 위성 기반 위치탐색 (건물, 지하에서 탐색불가)
         // NETWORK_PROVIDER : 네트워크 기반 위치탐색
         gpsManager.setProvider(TMapGpsManager.GPS_PROVIDER);
 
-        gpsManager.OpenGps(); // gps 추적 시작
+         gpsManager.OpenGps(); // gps 추적 시작
     }
 
     public void changeCurrentLocation(TMapPoint location){
-        changeDepartureToMyLocation(location);
+        // 출발지가 설정되지 않은 경우 현재위치를 출발지로 설정한다
+        if(departureAddress.get() == null) {
+            changeDepartureToMyLocation(location);
+            gpsManager.CloseGps();
+        }
         mapView.setCenterPoint(location.getLongitude(), location.getLatitude(), true); // 현재위치로 화면 이동
         mapView.setLocationPoint(location.getLongitude(), location.getLatitude()); // 현재 위치 변경
         isMyLocation.set(true);
@@ -137,18 +145,6 @@ public class MapViewModel {
         isCompassMode.set(bool);
     }
 
-    private void getMarkerIcon(final TMapMarkerItem marker, int iconId){
-        Glide.with(mapView.getContext())
-                .load(iconId)
-                .asBitmap()
-                .into(new SimpleTarget<Bitmap>() {
-                    @Override
-                    public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
-                        marker.setIcon(resource);
-                    }
-                });
-    }
-
     private void changeDepartureToMyLocation(TMapPoint location){
 
         departurePoint = location;
@@ -159,15 +155,6 @@ public class MapViewModel {
                 departureAddress.set("현재 위치 : " + s);
             }
         });
-
-        TMapMarkerItem marker = new TMapMarkerItem();
-        getMarkerIcon(marker, R.drawable.ic_location_active);
-        marker.setTMapPoint(departurePoint);
-
-        if(mapView.getMarkerItemFromID(MARKER_DEPARTURE) != null) {
-            mapView.removeMarkerItem(MARKER_DEPARTURE);
-        }
-        mapView.addMarkerItem(MARKER_DEPARTURE, marker);
     }
 
     private void changeDestinationToMyLocation(TMapPoint location){
@@ -180,15 +167,6 @@ public class MapViewModel {
                 departureAddress.set("현재 위치 : " + s);
             }
         });
-
-        TMapMarkerItem marker = new TMapMarkerItem();
-        getMarkerIcon(marker, R.drawable.ic_marker_destination);
-        marker.setTMapPoint(destinationPoint);
-
-        if(mapView.getMarkerItemFromID(MARKER_DESTINATION) != null) {
-            mapView.removeMarkerItem(MARKER_DESTINATION);
-        }
-        mapView.addMarkerItem(MARKER_DESTINATION, marker);
     }
 
     private void changeDeparture(String name, double latitude, double longitude){
@@ -201,16 +179,6 @@ public class MapViewModel {
                 departureAddress.set(s);
             }
         });
-
-        TMapMarkerItem marker = new TMapMarkerItem();
-        getMarkerIcon(marker, R.drawable.ic_location_active);
-        marker.setTMapPoint(departurePoint);
-        marker.setName(name);
-
-        if(mapView.getMarkerItemFromID(MARKER_DEPARTURE) != null) {
-            mapView.removeMarkerItem(MARKER_DEPARTURE);
-        }
-        mapView.addMarkerItem(MARKER_DEPARTURE, marker);
 
         mapView.setCenterPoint(longitude, latitude);
     }
@@ -225,16 +193,6 @@ public class MapViewModel {
                 destinationAddress.set(s);
             }
         });
-
-        TMapMarkerItem marker = new TMapMarkerItem();
-        getMarkerIcon(marker, R.drawable.ic_marker_destination);
-        marker.setTMapPoint(destinationPoint);
-        marker.setName(name);
-
-        if(mapView.getMarkerItemFromID(MARKER_DESTINATION) != null) {
-            mapView.removeMarkerItem(MARKER_DESTINATION);
-        }
-        mapView.addMarkerItem(MARKER_DESTINATION, marker);
 
         mapView.setCenterPoint(longitude, latitude);
     }
@@ -276,29 +234,26 @@ public class MapViewModel {
     private void drawPolyLine() {
         if(destinationPoint != null && departurePoint != null){
             mapView.setIconVisibility(false);
-/*
-
-            TMapPolyLine polyLine = new TMapPolyLine();
-
-            polyLine.addLinePoint(departurePoint);
-            polyLine.addLinePoint(destinationPoint);
-
-            polyLine.setLineColor(R.color.mainBlue);
-            polyLine.setLineWidth(2);
-
-            DashPathEffect dashPath = new DashPathEffect(new float[]{20,10}, 1); //점선
-            polyLine.setPathEffect(dashPath);
-*/
 
             // 보행자 경로
             tMapData.findPathDataWithType(TMapData.TMapPathType.PEDESTRIAN_PATH, departurePoint, destinationPoint,
                     new TMapData.FindPathDataListenerCallback() {
                 @Override
                 public void onFindPathData(TMapPolyLine tMapPolyLine) {
-                    mapView.addTMapPolyLine("", tMapPolyLine);
+                    DashPathEffect dashPath = new DashPathEffect(new float[]{20,10}, 1); //점선
+
+                    tMapPolyLine.setLineColor(R.color.lightBlue);
+                    tMapPolyLine.setLineWidth(10);
+                    tMapPolyLine.setLineAlpha(170);
+                    tMapPolyLine.setPathEffect(dashPath);
+
+                    tMapPolyLine.setOutLineAlpha(0);
+
+                    mapView.addTMapPath(tMapPolyLine);
                 }
             });
 
+            // 출발지, 도착지, 경로선을 화면안에 표시
             ArrayList<TMapPoint> list = new ArrayList<>();
             list.add(destinationPoint);
             list.add(departurePoint);
@@ -317,6 +272,7 @@ public class MapViewModel {
                 // 최상위 node
                 Element root = document.getDocumentElement();
 
+                // 파싱할 tag
                 NodeList placeMark = root.getElementsByTagName("Placemark");
 
                 StringBuffer sb = new StringBuffer();
@@ -337,5 +293,29 @@ public class MapViewModel {
                 showPath.set(true);
             }
         });
+    }
+
+    private void parsePathDocument(Document document){
+        Element root = document.getDocumentElement(); // 최상위 node
+
+        NodeList pathInfoList = root.getElementsByTagName(TAG_PLACEMARK); // 파싱할 tag
+
+        for(int i = 0 ; i < pathInfoList.getLength() ; i++){
+            Node node = pathInfoList.item(i);
+            if(node.getNodeType() == Node.ELEMENT_NODE){
+                Element pathInfo = (Element) node; // 경로정보
+                getTagValue(TAG_NODE_TYPE, pathInfo);
+            }
+        }
+    }
+
+    private
+
+    private String getTagValue(String tag, Element element) {
+        NodeList nodeList = element.getElementsByTagName(tag).item(0).getChildNodes();
+        Node nValue = nodeList.item(0);
+        if(nValue == null)
+            return null;
+        return nValue.getNodeValue();
     }
 }

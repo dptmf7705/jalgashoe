@@ -1,4 +1,4 @@
-package com.dankook.jalgashoe.data;
+package com.dankook.jalgashoe.data.dao;
 
 import java.util.HashMap;
 import java.util.List;

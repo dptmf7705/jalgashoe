@@ -14,6 +14,7 @@ import com.dankook.jalgashoe.map.path.MapPathActivity;
 import com.dankook.jalgashoe.searchPoi.SearchActivity;
 import com.dankook.jalgashoe.util.SnackbarUtils;
 import com.skt.Tmap.TMapGpsManager;
+import com.skt.Tmap.TMapPOIItem;
 import com.skt.Tmap.TMapPoint;
 import com.skt.Tmap.TMapView;
 
@@ -81,7 +82,8 @@ public class MapActivity extends BaseActivity<ActivityMapBinding> implements Map
 
     @Override
     public void onLocationChange(Location location) {
-        viewModel.changeCurrentLocation(new TMapPoint(location.getLatitude(), location.getLongitude()));
+        TMapPoint point = new TMapPoint(location.getLatitude(), location.getLongitude());
+        viewModel.changeCurrentLocation(point);
     }
 
     @Override

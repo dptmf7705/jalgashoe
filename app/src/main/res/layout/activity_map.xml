@@ -145,36 +145,61 @@
                 android:layout_weight="1"
                 android:orientation="vertical">
 
-                <TextView
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="40dp"
-                    android:drawableLeft="@drawable/ic_location_active"
-                    android:drawablePadding="5dp"
-                    android:hint="출발지 검색"
-                    android:text="@{viewModel.departureAddress}"
-                    android:textSize="13sp"
+                    android:orientation="horizontal"
                     android:gravity="center_vertical"
-                    android:textColor="@android:color/black"
                     android:onClick="@{(v) -> viewModel.onClickSearchBar()}"
-                    android:background="@drawable/round_border"/>
+                    android:background="@drawable/round_border">
+
+                    <ImageView
+                        style="@style/drawableImageButtonStyle"
+                        android:padding="5dp"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:src="@drawable/ic_start_icon"/>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:hint="출발지 검색"
+                        android:text="@{viewModel.departureAddress}"
+                        android:textSize="13sp"
+                        android:gravity="center_vertical"
+                        android:textColor="@android:color/black"/>
+
+                </LinearLayout>
 
                 <Space
                     android:layout_width="match_parent"
                     android:layout_height="10dp" />
 
-                <TextView
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="40dp"
-                    android:drawableLeft="@drawable/ic_marker_destination"
-                    android:drawablePadding="5dp"
-                    android:hint="목적지 검색"
-                    android:text="@{viewModel.destinationAddress}"
-                    android:textSize="13sp"
+                    android:orientation="horizontal"
                     android:gravity="center_vertical"
-                    android:textColor="@android:color/black"
                     android:onClick="@{(v) -> viewModel.onClickSearchBar()}"
-                    android:background="@drawable/round_border"/>
+                    android:background="@drawable/round_border">
 
+                    <ImageView
+                        style="@style/drawableImageButtonStyle"
+                        android:padding="5dp"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:src="@drawable/ic_end_icon"/>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:hint="목적지 검색"
+                        android:text="@{viewModel.destinationAddress}"
+                        android:textSize="13sp"
+                        android:gravity="center_vertical"
+                        android:textColor="@android:color/black"/>
+
+                </LinearLayout>
             </LinearLayout>
 
             <LinearLayout
@@ -182,7 +207,6 @@
                 android:layout_height="match_parent"
                 android:orientation="vertical"
                 android:layout_marginLeft="10dp"
-                android:padding="5dp"
                 android:background="@drawable/round_border"
                 android:onClick="@{(v) -> viewModel.onFindPathClick()}"
                 android:gravity="center">
@@ -206,6 +230,15 @@
                     android:text="@string/find_path_start_button_text"/>
 
             </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+
+
         </LinearLayout>
 
         <android.support.design.widget.TabLayout

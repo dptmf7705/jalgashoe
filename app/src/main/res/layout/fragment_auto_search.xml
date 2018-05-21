@@ -12,17 +12,13 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:background="@color/primaryWhite"
-        android:paddingTop="10dp"
-        android:paddingLeft="10dp"
-        android:paddingRight="10dp">
+        android:background="@color/primaryWhite">
 
         <ListView
             android:id="@+id/search_list_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@drawable/round_bottom_corner"
-            android:visibility="@{viewModel.isSearching ? View.VISIBLE : View.GONE}"
             app:searchItems="@{viewModel.autoCompItems}"/>
 
     </LinearLayout>

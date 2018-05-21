@@ -4,6 +4,7 @@ import android.content.Context;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,36 +14,43 @@ import com.dankook.jalgashoe.BaseFragment;
 import com.dankook.jalgashoe.R;
 import com.dankook.jalgashoe.databinding.FragmentPoiListBinding;
 import com.dankook.jalgashoe.databinding.PoiListItemBinding;
-import com.dankook.jalgashoe.searchPoi.search.SearchNavigator;
 import com.dankook.jalgashoe.searchPoi.SearchViewModel;
+import com.dankook.jalgashoe.util.BitmapTextUtil;
+import com.skt.Tmap.TMapMarkerItem;
 import com.skt.Tmap.TMapPOIItem;
 import com.skt.Tmap.TMapView;
 
-import java.util.ArrayList;
 import java.util.List;
 
-public class PoiListFragment extends BaseFragment<FragmentPoiListBinding> implements SearchNavigator{
+public class PoiListFragment extends BaseFragment<FragmentPoiListBinding> implements PoiListNavigator {
+    private final String TAG = "PoiListFragment";
 
-    private PoiListAdapter poiAdapter;
+    private TMapView tMapView;
+    private PoiListAdapter adapter;
     private SearchViewModel viewModel;
-    private TMapView poiMapView;
 
-    private Runnable loadMarkerIcon = new Runnable() {
+    private Runnable addAddress = new Runnable() {
         @Override
         public void run() {
-            viewModel.setLocationIcon(viewModel.poiItems.indexOf(viewModel.selectedPoi.get()) + 1);
+            adapter.notifyDataSetChanged();
+//            adapter.updateList(viewModel.poiItems);
         }
     };
-
-    private Runnable updateLocationAddress = new Runnable() {
+    private Runnable notifyChange = new Runnable() {
         @Override
         public void run() {
-            poiAdapter.notifyDataSetChanged();
+            if (viewModel.poiItems != null) {
+                for (int i = 0; i < viewModel.poiItems.size(); i++) {
+                    addMarker(i);
+                }
+            }
+            adapter.updateList(viewModel.poiItems);
         }
     };
 
     public void setViewModel(SearchViewModel viewModel) {
         this.viewModel = viewModel;
+        this.viewModel.setPoiNavigator(this);
     }
 
     @Override
@@ -54,28 +62,56 @@ public class PoiListFragment extends BaseFragment<FragmentPoiListBinding> implem
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        poiMapView = new TMapView(context);
-        binding.poiMapView.addView(poiMapView);
+        tMapView = new TMapView(context);
+        viewModel.setTMapView(tMapView);
+
+        binding.poiMapView.addView(tMapView);
+
+        binding.setViewModel(viewModel);
+
+        setupPoiList();
     }
 
     private void setupPoiList() {
-        poiAdapter = new PoiListAdapter(context, viewModel, new ArrayList<TMapPOIItem>(0));
-        poiAdapter.setItemClickListener(new PoiListAdapter.OnItemClickListener() {
+        Log.d(TAG, "setupPoiList() viewModel.poiItems size: " + viewModel.poiItems.size());
+        adapter = new PoiListAdapter(context, viewModel, viewModel.poiItems);
+        binding.poiListView.setAdapter(adapter);
+        binding.poiListView.setEmptyView(binding.textEmpty);
+
+        adapter.setItemClickListener(new PoiListAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {
-                viewModel.showPoiDetail(position);
-                getActivity().runOnUiThread(updateLocationAddress);
-                getActivity().runOnUiThread(loadMarkerIcon);
-//                poiAdapter.notifyDataSetChanged();
+                viewModel.getTMapView().getMarkerItemFromID(viewModel.selectedPoi.get().getPOIID())
+                        .setIcon(BitmapTextUtil.writeTextOnDrawable(getResources(), R.drawable.ic_marker_deactive, 100, viewModel.poiItems.indexOf(viewModel.selectedPoi.get()) + 1));
+
+                viewModel.setSelectedPoi(position);
+                viewModel.getTMapView().getMarkerItemFromID(viewModel.selectedPoi.get().getPOIID())
+                        .setIcon(BitmapTextUtil.writeTextOnDrawable(getResources(), R.drawable.ic_marker, 120, position+1));
+
+                adapter.notifyDataSetChanged();
             }
         });
-        binding.poiListView.setAdapter(poiAdapter);
+    }
+
+    public void addMarker(int position) {
+        TMapMarkerItem marker = new TMapMarkerItem();
+        marker.setIcon(BitmapTextUtil.writeTextOnDrawable(getResources(), R.drawable.ic_marker_deactive, 100, position+1));
+        marker.setName(viewModel.poiItems.get(position).getPOIName());
+        marker.setTMapPoint(viewModel.poiItems.get(position).getPOIPoint());
+
+        tMapView.addMarkerItem(viewModel.poiItems.get(position).getPOIID(), marker); // 지도에 마커 추가
+        tMapView.sendMarkerToBack(marker);
     }
 
     @Override
     public void notifyAdapter() {
-//        poiAdapter.notifyDataSetChanged();
-        getActivity().runOnUiThread(updateLocationAddress);
+        Log.d(TAG, "notifyAdapter() viewModel.poiItems size: " + viewModel.poiItems.size());
+        getActivity().runOnUiThread(notifyChange);
+    }
+
+    @Override
+    public void addAddress() {
+        getActivity().runOnUiThread(addAddress);
     }
 
     /** 검색 결과 나타낼 리스트뷰 어댑터 */
@@ -86,7 +122,6 @@ public class PoiListFragment extends BaseFragment<FragmentPoiListBinding> implem
         private List<TMapPOIItem> itemList;
 
         private OnItemClickListener itemClickListener;
-        private OnItemLongClickListener itemLongClickListener;
 
         public PoiListAdapter(Context context, SearchViewModel viewModel, List<TMapPOIItem> items){
             this.context = context;
@@ -120,7 +155,15 @@ public class PoiListFragment extends BaseFragment<FragmentPoiListBinding> implem
 
             binding = DataBindingUtil.bind(view);
             binding.setItem(item);
-            binding.locationButton.setSelected(viewModel.selectedPoi.get() == item);
+            binding.textAddress.setText(item.address);
+
+            boolean isSelectedItem = viewModel.selectedPoi.get() == item;
+            if(isSelectedItem){
+                binding.locationButton.setImageBitmap(BitmapTextUtil.writeTextOnDrawable(context.getResources(), R.drawable.ic_marker, 100, position+1));
+            } else {
+                binding.locationButton.setImageBitmap(BitmapTextUtil.writeTextOnDrawable(context.getResources(), R.drawable.ic_marker_deactive, 100, position+1));
+            }
+            binding.locationButton.setSelected(isSelectedItem);
 
             view.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -132,23 +175,15 @@ public class PoiListFragment extends BaseFragment<FragmentPoiListBinding> implem
                 }
             });
 
-            view.setOnLongClickListener(new View.OnLongClickListener() {
-                @Override
-                public boolean onLongClick(View view) {
-
-                    if (itemLongClickListener != null) {
-                        itemLongClickListener.onItemLongClick(view, position);
-                    }
-
-                    return false;
-                }
-            });
-
             return view;
         }
 
         public void updateList(List<TMapPOIItem> items){
             this.itemList = items;
+            if(items != null && items.size() > 0){
+                viewModel.getTMapView().getMarkerItemFromID(items.get(0).getPOIID())
+                        .setIcon(BitmapTextUtil.writeTextOnDrawable(context.getResources(), R.drawable.ic_marker, 120, 1));
+            }
             notifyDataSetChanged();
         }
 
@@ -156,20 +191,10 @@ public class PoiListFragment extends BaseFragment<FragmentPoiListBinding> implem
             this.itemClickListener = itemClickListener;
         }
 
-        public void setItemLongClickListener(OnItemLongClickListener itemLongClickListener) {
-            this.itemLongClickListener = itemLongClickListener;
-        }
-
         public interface OnItemClickListener{
 
             void onItemClick(View view, int position);
         }
-
-        public interface OnItemLongClickListener{
-
-            void onItemLongClick(View view, int position);
-        }
-
     }
 
 }

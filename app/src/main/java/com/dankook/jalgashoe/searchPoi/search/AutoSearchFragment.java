@@ -11,7 +11,7 @@ import android.widget.BaseAdapter;
 
 import com.dankook.jalgashoe.BaseFragment;
 import com.dankook.jalgashoe.R;
-import com.dankook.jalgashoe.databinding.FragmentSearchBinding;
+import com.dankook.jalgashoe.databinding.FragmentAutoSearchBinding;
 import com.dankook.jalgashoe.databinding.SearchListItemBinding;
 import com.dankook.jalgashoe.searchPoi.SearchViewModel;
 
@@ -22,7 +22,7 @@ import java.util.List;
  * Created by yeseul on 2018-05-19.
  */
 
-public class SearchFragment extends BaseFragment<FragmentSearchBinding> {
+public class AutoSearchFragment extends BaseFragment<FragmentAutoSearchBinding> {
 
     private AutoCompListAdapter adapter;
     private SearchViewModel viewModel;
@@ -33,7 +33,7 @@ public class SearchFragment extends BaseFragment<FragmentSearchBinding> {
 
     @Override
     protected int getLayoutId() {
-        return R.layout.fragment_search;
+        return R.layout.fragment_auto_search;
     }
 
     @Override
@@ -50,11 +50,15 @@ public class SearchFragment extends BaseFragment<FragmentSearchBinding> {
         adapter.setItemClickListener(new AutoCompListAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {
-//                keyboard.hideKeyboard();
-                viewModel.onSearchItemClick(position);
+                startSearchPoi(viewModel.autoCompItems.get(position));
             }
         });
         binding.searchListView.setAdapter(adapter);
+    }
+
+    private void startSearchPoi(String keyword) {
+        viewModel.searchText.set(keyword);
+        viewModel.onSearchItemClick(keyword); // poi 검색 실행
     }
 
     /** 검색어 자동완성 어댑터 */

@@ -1,15 +1,20 @@
 package com.dankook.jalgashoe.util;
 
 import android.databinding.BindingAdapter;
+import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.view.View;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.drawable.GlideDrawable;
 import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.GlideDrawableImageViewTarget;
+import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.target.Target;
+import com.dankook.jalgashoe.R;
 
 import jp.wasabeef.glide.transformations.CropCircleTransformation;
 
@@ -82,34 +87,4 @@ public class ImageUtil {
                 .into(imageView);
     }
 
-    public static void loadCircleImage(ImageView imageView, String url, Drawable errorDrawable) {
-
-        if(url.contains("13.125.173.118:8080")){
-            if(!url.startsWith("http://")){
-                url = "http://".concat(url);
-            }
-        }
-
-        Glide.with(imageView.getContext())
-                .load(url)
-                .error(errorDrawable)
-                .bitmapTransform(new CropCircleTransformation(Glide.get(imageView.getContext()).getBitmapPool()))
-                .into(imageView);
-    }
-
-    public static void loadCircleImage(ImageView imageView, int id, Drawable errorDrawable) {
-        Glide.with(imageView.getContext())
-                .load(id)
-                .error(errorDrawable)
-                .bitmapTransform(new CropCircleTransformation(Glide.get(imageView.getContext()).getBitmapPool()))
-                .into(imageView);
-    }
-
-    public static void loadCircleImage(ImageView imageView, Uri url, Drawable errorDrawable) {
-        Glide.with(imageView.getContext())
-                .load(url)
-                .error(errorDrawable)
-                .bitmapTransform(new CropCircleTransformation(Glide.get(imageView.getContext()).getBitmapPool()))
-                .into(imageView);
-    }
 }

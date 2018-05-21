@@ -13,4 +13,8 @@ public interface SearchActivityNavigator {
     void showSnackBar(String message);
 
     void finishActivityWithResult(int resultCode, TMapPoint poiPoint);
+
+    void changeToAutoSearchFragment();
+
+    void changeToPoiListFragment();
 }

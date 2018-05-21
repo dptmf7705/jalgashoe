@@ -4,15 +4,12 @@ import android.databinding.ObservableArrayList;
 import android.databinding.ObservableBoolean;
 import android.databinding.ObservableField;
 import android.databinding.ObservableList;
-import android.graphics.Bitmap;
 import android.text.Editable;
+import android.util.Log;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.animation.GlideAnimation;
-import com.bumptech.glide.request.target.SimpleTarget;
-import com.dankook.jalgashoe.R;
-import com.dankook.jalgashoe.util.BitmapTextUtil;
+import com.dankook.jalgashoe.searchPoi.poiList.PoiListNavigator;
 import com.skt.Tmap.TMapData;
+import com.skt.Tmap.TMapMarkerItem;
 import com.skt.Tmap.TMapPOIItem;
 import com.skt.Tmap.TMapView;
 
@@ -24,9 +21,11 @@ import java.util.ArrayList;
 
 public class SearchViewModel {
 
+    private final String TAG = "SearchViewModel";
+
+    public final ObservableBoolean showHistory = new ObservableBoolean();
+
     public final ObservableField<String> searchText = new ObservableField<>();
-    public final ObservableBoolean isSearching = new ObservableBoolean();
-    public final ObservableBoolean showPoiList = new ObservableBoolean();
 
     public final ObservableList<TMapPOIItem> poiItems = new ObservableArrayList<>();
     public final ObservableList<String> autoCompItems = new ObservableArrayList<>();
@@ -34,6 +33,8 @@ public class SearchViewModel {
     public final ObservableField<TMapPOIItem> selectedPoi = new ObservableField<>();
 
     private SearchActivityNavigator navigator;
+    private PoiListNavigator poiNavigator;
+
     private TMapView tMapView;
     private TMapData tMapData;
 
@@ -41,37 +42,46 @@ public class SearchViewModel {
         tMapData = new TMapData();
     }
 
-    public void start(TMapView tMapView) {
+    public void setTMapView(TMapView tMapView) {
         this.tMapView = tMapView;
-
         setupMap();
+    }
 
-        isSearching.set(true);
-        showPoiList.set(false);
+    public TMapView getTMapView() {
+        return tMapView;
     }
 
     public void setNavigator(SearchActivityNavigator navigator) {
         this.navigator = navigator;
     }
 
-    public void onClickBackButton(){
-        navigator.onActivityFinish();
+    public void setPoiNavigator(PoiListNavigator poiNavigator) {
+        this.poiNavigator = poiNavigator;
+    }
+
+    public void start() {
+        showHistory.set(true);
     }
 
     public void onSearchTextChanged(Editable editable){
+        String inputText = "";
 
-        if(!isSearching.get()){
-            isSearching.set(true);
+        if(editable != null) {
+            inputText = editable.toString();
         }
 
-        searchText.set(editable.toString());
-
-        if (editable == null || editable.toString().equals("")) {
-            isSearching.set(false);
-            return;
+        // 입력 텍스트가 빈 경우 검색어 히스토리 목록
+        // 텍스트가 입력된 경우 검색어 자동완성 목록을 보여줌
+        if(inputText.equals("")){
+            showHistory.set(true);
+        } else{
+            showHistory.set(false);
         }
 
-        searchFromData(editable.toString());
+        searchText.set(inputText);
+
+        // get auto search list
+        searchFromData(inputText);
     }
 
     public void searchFromData(String searchKey){
@@ -88,7 +98,6 @@ public class SearchViewModel {
                 autoCompItems.addAll(arrayList);
             }
         });
-
     }
 
     // 지도 설정
@@ -99,44 +108,18 @@ public class SearchViewModel {
         // 지도 줌레벨 설정
         tMapView.setZoomLevel(17);
 
-        changeCurrentPoiLocation(selectedPoi.get());
-
-        // 마커 아이콘 설정
-        setLocationIcon(1);
-
         tMapView.setIconVisibility(true);
     }
 
-    public void setLocationIcon(final int index){
-
-        Glide.with(tMapView.getContext())
-                .load(R.drawable.ic_marker)
-                .asBitmap()
-                .override(50, 50)
-                .skipMemoryCache(true)
-                .into(new SimpleTarget<Bitmap>() {
-                    @Override
-                    public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
-                        Bitmap icon = BitmapTextUtil.writeTextOnBitmap(resource, String.valueOf(index));
-                        tMapView.setIcon(icon);
-                    }
-                });
-    }
-
-    // 현재위치 지정
-    public void changeCurrentPoiLocation(TMapPOIItem poi){
-        if(poi != null) {
-            tMapView.setCenterPoint(Double.parseDouble(poi.noorLon), Double.parseDouble(poi.noorLat), true);
-            tMapView.setLocationPoint(Double.parseDouble(poi.noorLon), Double.parseDouble(poi.noorLat));
+    public void changeCurrentPoiLocation(TMapPOIItem item){
+        if(item != null) {
+            tMapView.setCenterPoint(item.getPOIPoint().getLongitude(), item.getPOIPoint().getLatitude(), true);
+            tMapView.setLocationPoint(item.getPOIPoint().getLongitude(), item.getPOIPoint().getLatitude());
         }
     }
 
-    public void onSearchItemClick(int position){
-
-        isSearching.set(false);
-        showPoiList.set(true);
-
-        String keyword = autoCompItems.get(position);
+    public void onSearchItemClick(String keyword){
+        navigator.changeToPoiListFragment();
 
         tMapData.findAllPOI(keyword, new TMapData.FindAllPOIListenerCallback() {
             @Override
@@ -149,24 +132,28 @@ public class SearchViewModel {
 
                 poiItems.addAll(arrayList);
 
-                changeCurrentPoiLocation(poiItems.get(0));
-                selectedPoi.set(poiItems.get(0));
+                setSelectedPoi(0);
 
                 for(final TMapPOIItem item : poiItems){
-                    tMapData.convertGpsToAddress(Double.parseDouble(item.noorLon), Double.parseDouble(item.noorLat),
+                    tMapData.convertGpsToAddress(item.getPOIPoint().getLatitude(), item.getPOIPoint().getLongitude(),
                             new TMapData.ConvertGPSToAddressListenerCallback() {
                         @Override
                         public void onConvertToGPSToAddress(String s) {
                             item.address = s;
-//                            navigator.notifyAdapter();
+                            poiNavigator.addAddress();
                         }
                     });
                 }
+
+                poiNavigator.notifyAdapter();
             }
         });
     }
 
-    public void showPoiDetail(int position) {
+    public void setSelectedPoi(int position) {
+        TMapMarkerItem marker = tMapView.getMarkerItemFromID(poiItems.get(position).getPOIID());
+        tMapView.bringMarkerToFront(marker);
+
         selectedPoi.set(poiItems.get(position));
         changeCurrentPoiLocation(poiItems.get(position));
     }
@@ -177,5 +164,13 @@ public class SearchViewModel {
 
     public void onDepartureClick(){
         navigator.finishActivityWithResult(SearchActivity.RESULT_DEPARTURE, selectedPoi.get().getPOIPoint());
+    }
+
+    public void onSelectCurrentLocation(){
+        navigator.showSnackBar("현위치로 설정");
+    }
+
+    public void onSelectFromMap(){
+        navigator.showSnackBar("지도에서 설정");
     }
 }

@@ -1,6 +1,8 @@
 package com.dankook.jalgashoe.util;
 
+import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -25,4 +27,15 @@ public class BitmapTextUtil {
 
         return bitmap;
     }
+
+    public static Bitmap writeTextOnDrawable(Resources resource, int drawableId, int size, String text){
+        Bitmap bitmap = BitmapFactory.decodeResource(resource, drawableId).copy(Bitmap.Config.ARGB_8888, true);
+
+        return BitmapTextUtil.writeTextOnBitmap(Bitmap.createScaledBitmap(bitmap, size, size, false), text);
+    }
+
+    public static Bitmap writeTextOnDrawable(Resources resource, int drawableId, int size, int index){
+        return writeTextOnDrawable(resource, drawableId, size, String.valueOf(index));
+    }
+
 }
