@@ -15,7 +15,7 @@ import com.dankook.jalgashoe.R;
 import com.dankook.jalgashoe.databinding.FragmentPoiListBinding;
 import com.dankook.jalgashoe.databinding.PoiListItemBinding;
 import com.dankook.jalgashoe.searchPoi.SearchViewModel;
-import com.dankook.jalgashoe.util.BitmapTextUtil;
+import com.dankook.jalgashoe.util.BitmapUtil;
 import com.skt.Tmap.TMapMarkerItem;
 import com.skt.Tmap.TMapPOIItem;
 import com.skt.Tmap.TMapView;
@@ -82,11 +82,11 @@ public class PoiListFragment extends BaseFragment<FragmentPoiListBinding> implem
             @Override
             public void onItemClick(View view, int position) {
                 viewModel.getTMapView().getMarkerItemFromID(viewModel.selectedPoi.get().getPOIID())
-                        .setIcon(BitmapTextUtil.writeTextOnDrawable(getResources(), R.drawable.ic_marker_deactive, 100, viewModel.poiItems.indexOf(viewModel.selectedPoi.get()) + 1));
+                        .setIcon(BitmapUtil.writeTextOnDrawable(getResources(), R.drawable.ic_marker_deactive, 100, viewModel.poiItems.indexOf(viewModel.selectedPoi.get()) + 1));
 
                 viewModel.setSelectedPoi(position);
                 viewModel.getTMapView().getMarkerItemFromID(viewModel.selectedPoi.get().getPOIID())
-                        .setIcon(BitmapTextUtil.writeTextOnDrawable(getResources(), R.drawable.ic_marker, 120, position+1));
+                        .setIcon(BitmapUtil.writeTextOnDrawable(getResources(), R.drawable.ic_marker, 120, position+1));
 
                 adapter.notifyDataSetChanged();
             }
@@ -95,7 +95,7 @@ public class PoiListFragment extends BaseFragment<FragmentPoiListBinding> implem
 
     public void addMarker(int position) {
         TMapMarkerItem marker = new TMapMarkerItem();
-        marker.setIcon(BitmapTextUtil.writeTextOnDrawable(getResources(), R.drawable.ic_marker_deactive, 100, position+1));
+        marker.setIcon(BitmapUtil.writeTextOnDrawable(getResources(), R.drawable.ic_marker_deactive, 100, position+1));
         marker.setName(viewModel.poiItems.get(position).getPOIName());
         marker.setTMapPoint(viewModel.poiItems.get(position).getPOIPoint());
 
@@ -159,9 +159,9 @@ public class PoiListFragment extends BaseFragment<FragmentPoiListBinding> implem
 
             boolean isSelectedItem = viewModel.selectedPoi.get() == item;
             if(isSelectedItem){
-                binding.locationButton.setImageBitmap(BitmapTextUtil.writeTextOnDrawable(context.getResources(), R.drawable.ic_marker, 100, position+1));
+                binding.locationButton.setImageBitmap(BitmapUtil.writeTextOnDrawable(context.getResources(), R.drawable.ic_marker, 100, position+1));
             } else {
-                binding.locationButton.setImageBitmap(BitmapTextUtil.writeTextOnDrawable(context.getResources(), R.drawable.ic_marker_deactive, 100, position+1));
+                binding.locationButton.setImageBitmap(BitmapUtil.writeTextOnDrawable(context.getResources(), R.drawable.ic_marker_deactive, 100, position+1));
             }
             binding.locationButton.setSelected(isSelectedItem);
 
@@ -182,7 +182,7 @@ public class PoiListFragment extends BaseFragment<FragmentPoiListBinding> implem
             this.itemList = items;
             if(items != null && items.size() > 0){
                 viewModel.getTMapView().getMarkerItemFromID(items.get(0).getPOIID())
-                        .setIcon(BitmapTextUtil.writeTextOnDrawable(context.getResources(), R.drawable.ic_marker, 120, 1));
+                        .setIcon(BitmapUtil.writeTextOnDrawable(context.getResources(), R.drawable.ic_marker, 120, 1));
             }
             notifyDataSetChanged();
         }

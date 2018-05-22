@@ -48,7 +48,7 @@
     <string name="discoverable">찾기 가능</string>
 
     <string name="map_keyword_search_box_hint">장소/주소/번화번호를 검색하세요.</string>
-    <string name="find_path_start_button_text">길안내\n시작</string>
+    <string name="find_path_start_button_text">길안내 시작</string>
     <string name="current_location_default">현재 위치 찾는중...</string>
     <string name="poi_list_empty_text">검색 결과가 없습니다.</string>
 

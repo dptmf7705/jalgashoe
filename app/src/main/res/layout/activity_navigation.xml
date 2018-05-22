@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+    <data>
+        <variable
+            name="viewModel"
+            type="com.dankook.jalgashoe.map.navi.NaviViewModel"/>
+        <variable
+            name="path"
+            type="com.dankook.jalgashoe.data.vo.PathInfoVO"/>
+    </data>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:id="@+id/map_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"/>
+
+        <LinearLayout
+            android:layout_alignParentTop="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="@color/transBlue">
+
+            <ImageView
+                style="@style/drawableImageButtonStyle"
+                android:layout_margin="10dp"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:src="@drawable/ic_turn_left"/>
+
+            <LinearLayout
+                android:layout_margin="5dp"
+                android:layout_width="150dp"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textStyle="bold"
+                    android:textSize="33sp"
+                    android:textColor="@android:color/white"
+                    android:text="30m"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textStyle="bold"
+                    android:textSize="15sp"
+                    android:text="미금역 사거리"
+                    android:textColor="@android:color/white"/>
+
+            </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_alignParentBottom="true"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="30dp"
+                android:background="@color/transBlack"
+                android:text="@{viewModel.currentAddress}"
+                android:textColor="@android:color/white"
+                android:textSize="12sp"
+                android:textAlignment="center"
+                android:gravity="center"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:background="@drawable/border_box">
+
+                <ImageView
+                    style="@style/drawableImageButtonStyle"
+                    android:padding="5dp"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:src="@drawable/ic_end_icon"/>
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_weight="2"
+                    android:layout_height="wrap_content"
+                    android:hint="목적지"
+                    android:text="@{path.endAddress}"
+                    android:textSize="13sp"
+                    android:gravity="center_vertical"
+                    android:textColor="@android:color/black"/>
+
+                <TextView
+                    android:padding="10dp"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="match_parent"
+                    android:hint="남은거리"
+                    android:text="@{path.pathDistance}"
+                    android:textSize="15sp"
+                    android:gravity="center_vertical"
+                    android:textColor="@android:color/black"
+                    android:background="@drawable/border_box_left"/>
+
+                <TextView
+                    android:padding="10dp"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="match_parent"
+                    android:hint="도착시간"
+                    android:text="@{path.pathTime}"
+                    android:textSize="15sp"
+                    android:gravity="center_vertical"
+                    android:textColor="@android:color/black"
+                    android:background="@drawable/border_box"/>
+
+            </LinearLayout>
+        </LinearLayout>
+
+    </RelativeLayout>
+
+</layout>

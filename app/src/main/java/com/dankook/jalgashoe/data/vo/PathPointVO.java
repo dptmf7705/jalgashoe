@@ -15,6 +15,26 @@ public class PathPointVO extends PathVO {
     private TMapPoint nearPoiPoint; // 안내점 기준 poi 포인트
     private String intersectName; // 교차로 명칭
 
+    @Override
+    public String toString() {
+        return "PathPointVO{" +
+                "pointIndex=" + pointIndex +
+                ", index=" + index +
+                ", turnType=" + turnType +
+                ", type='" + type + '\'' +
+                ", pointType='" + pointType + '\'' +
+                ", name='" + name + '\'' +
+                ", direction='" + direction + '\'' +
+                ", description='" + description + '\'' +
+                ", nearPoiName='" + nearPoiName + '\'' +
+                ", points=" + points +
+                ", nearPoiPoint=" + nearPoiPoint +
+                ", facilityType=" + facilityType +
+                ", intersectName='" + intersectName + '\'' +
+                ", facilityName='" + facilityName + '\'' +
+                '}';
+    }
+
     public int getPointIndex() {
         return pointIndex;
     }

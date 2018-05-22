@@ -29,4 +29,22 @@ public class DateUtil {
 
         return null;
     }
+
+    public static String getTime(String input){
+        try{
+            int second = Integer.parseInt(input);
+            int minute = second / 60; // 분으로 변경
+
+            if(minute >= 60){ // 시간 단위로 변경
+                int time = minute / 60;
+                minute = minute % 60;
+                return time + "시간\n" + minute + "분";
+            } else {
+                return minute + "분";
+            }
+        } catch (Exception e){
+            return null;
+        }
+
+    }
 }

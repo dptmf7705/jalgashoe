@@ -10,11 +10,10 @@ import android.widget.ImageView;
 import com.dankook.jalgashoe.BaseActivity;
 import com.dankook.jalgashoe.R;
 import com.dankook.jalgashoe.databinding.ActivityMapBinding;
-import com.dankook.jalgashoe.map.path.MapPathActivity;
+import com.dankook.jalgashoe.map.navi.NaviActivity;
 import com.dankook.jalgashoe.searchPoi.SearchActivity;
 import com.dankook.jalgashoe.util.SnackbarUtils;
 import com.skt.Tmap.TMapGpsManager;
-import com.skt.Tmap.TMapPOIItem;
 import com.skt.Tmap.TMapPoint;
 import com.skt.Tmap.TMapView;
 
@@ -33,6 +32,18 @@ public class MapActivity extends BaseActivity<ActivityMapBinding> implements Map
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        gpsManager.OpenGps();
+    }
+
+    @Override
+    protected void onPause() {
+        gpsManager.CloseGps();
+        super.onPause();
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
@@ -40,6 +51,7 @@ public class MapActivity extends BaseActivity<ActivityMapBinding> implements Map
         viewModel.setNavigator(this);
 
         binding.setViewModel(viewModel);// xml 레이아웃에 뷰모델 등록
+        binding.layoutPathInfo.setPath(viewModel.getPathInfo());
 
         mapView = new TMapView(this);// tMap view 생성
         binding.mapviewLayout.addView(mapView);// 화면에 적용
@@ -94,10 +106,16 @@ public class MapActivity extends BaseActivity<ActivityMapBinding> implements Map
     }
 
     @Override
-    public void startPathActivity(String s) {
-        Intent intent = new Intent(getApplicationContext(), MapPathActivity.class);
-        intent.putExtra("document", s);
+    public void startNaviActivity(TMapPoint startPoint, TMapPoint endPoint) {
+        Intent intent = new Intent(getApplicationContext(), NaviActivity.class);
+        intent.putExtra(NaviActivity.EXTRA_START_ADDRESS, viewModel.getPathInfo().getStartAddress());
+        intent.putExtra(NaviActivity.EXTRA_END_ADDRESS, viewModel.getPathInfo().getEndAddress());
+        intent.putExtra(NaviActivity.EXTRA_START_LATITUDE, startPoint.getLatitude());
+        intent.putExtra(NaviActivity.EXTRA_START_LONGITUDE, startPoint.getLongitude());
+        intent.putExtra(NaviActivity.EXTRA_END_LATITUDE, endPoint.getLatitude());
+        intent.putExtra(NaviActivity.EXTRA_END_LONGITUDE, endPoint.getLongitude());
         startActivity(intent);
+        overridePendingTransition(R.anim.enter_no_anim, R.anim.exit_no_anim);
     }
 
     @Override

@@ -8,7 +8,7 @@ import java.util.List;
  * Created by yeseul on 2018-05-21.
  */
 
-public class PathVO {
+public abstract class PathVO {
     protected int index; // path 순서
     protected String type; // point or line
     protected String name; // 지점 or 도로 이름

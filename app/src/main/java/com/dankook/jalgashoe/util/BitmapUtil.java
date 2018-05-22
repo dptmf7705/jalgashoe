@@ -8,11 +8,13 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Typeface;
 
+import com.dankook.jalgashoe.R;
+
 /**
  * Created by yeseul on 2018-05-09.
  */
 
-public class BitmapTextUtil {
+public class BitmapUtil {
 
     public static Bitmap writeTextOnBitmap(Bitmap bitmap, String text){
         Paint paint = new Paint();
@@ -31,11 +33,17 @@ public class BitmapTextUtil {
     public static Bitmap writeTextOnDrawable(Resources resource, int drawableId, int size, String text){
         Bitmap bitmap = BitmapFactory.decodeResource(resource, drawableId).copy(Bitmap.Config.ARGB_8888, true);
 
-        return BitmapTextUtil.writeTextOnBitmap(Bitmap.createScaledBitmap(bitmap, size, size, false), text);
+        return BitmapUtil.writeTextOnBitmap(Bitmap.createScaledBitmap(bitmap, size, size, false), text);
     }
 
     public static Bitmap writeTextOnDrawable(Resources resource, int drawableId, int size, int index){
         return writeTextOnDrawable(resource, drawableId, size, String.valueOf(index));
     }
+
+    public static Bitmap getScaledBitmap(Resources resources, int drawableId, int size){
+        Bitmap startIcon = BitmapFactory.decodeResource(resources, drawableId);
+        return Bitmap.createScaledBitmap(startIcon, size, size, false);
+    }
+
 
 }

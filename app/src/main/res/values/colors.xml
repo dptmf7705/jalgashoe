@@ -3,6 +3,7 @@
     <color name="colorPrimary">#EEEBE0</color>
     <color name="colorPrimaryDark">#4d4d4d</color>
     <color name="colorAccent">#A2071A</color>
+    <color name="accentBlue">#3a4cb0</color>
     <color name="darkBlue">#223F5E</color>
     <color name="mainBlue">#405B7D</color>
     <color name="lightBlue">#849DB5</color>
@@ -15,4 +16,6 @@
     <color name="transBlack">#c8000000</color>
     <color name="primaryWhite">#fafafa</color>
     <color name="transWhite">#c8fafafa</color>
+    <color name="transBlue">#c83a4cb0</color>
+    <color name="coral">#ff7f50</color>
 </resources>

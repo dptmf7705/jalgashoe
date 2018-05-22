@@ -13,6 +13,24 @@ public class PathLineVO extends PathVO {
     private int roadType; // 도로 타입
     private int categoryRoadType; // 특화 거리 타입
 
+    @Override
+    public String toString() {
+        return "PathLineVO{" +
+                "lineIndex=" + lineIndex +
+                ", index=" + index +
+                ", distance=" + distance +
+                ", type='" + type + '\'' +
+                ", time=" + time +
+                ", name='" + name + '\'' +
+                ", roadType=" + roadType +
+                ", description='" + description + '\'' +
+                ", categoryRoadType=" + categoryRoadType +
+                ", points=" + points +
+                ", facilityType=" + facilityType +
+                ", facilityName='" + facilityName + '\'' +
+                '}';
+    }
+
     public int getLineIndex() {
         return lineIndex;
     }
