@@ -151,11 +151,13 @@ public class SearchViewModel {
     }
 
     public void setSelectedPoi(int position) {
-        TMapMarkerItem marker = tMapView.getMarkerItemFromID(poiItems.get(position).getPOIID());
-        tMapView.bringMarkerToFront(marker);
+        if(poiItems.get(position) != null) {
+            TMapMarkerItem marker = tMapView.getMarkerItemFromID(poiItems.get(position).getPOIID());
+            tMapView.bringMarkerToFront(marker);
 
-        selectedPoi.set(poiItems.get(position));
-        changeCurrentPoiLocation(poiItems.get(position));
+            selectedPoi.set(poiItems.get(position));
+            changeCurrentPoiLocation(poiItems.get(position));
+        }
     }
 
     public void onDestinationClick(){

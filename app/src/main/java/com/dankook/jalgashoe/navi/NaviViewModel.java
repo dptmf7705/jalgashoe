@@ -1,21 +1,18 @@
-package com.dankook.jalgashoe.map.navi;
+package com.dankook.jalgashoe.navi;
 
 import android.databinding.ObservableField;
-import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.util.Log;
 
-import com.dankook.jalgashoe.R;
-import com.dankook.jalgashoe.data.dao.BaseDao;
+import com.dankook.jalgashoe.data.vo.NavigationVO;
+import com.dankook.jalgashoe.data.vo.PathBundleVO;
 import com.dankook.jalgashoe.data.vo.PathInfoVO;
 import com.dankook.jalgashoe.data.vo.PathLineVO;
 import com.dankook.jalgashoe.data.vo.PathPointVO;
 import com.dankook.jalgashoe.data.vo.PathVO;
-import com.dankook.jalgashoe.util.BitmapUtil;
 import com.dankook.jalgashoe.util.DateUtil;
+import com.dankook.jalgashoe.util.MapUtil;
 import com.dankook.jalgashoe.util.XmlParserUtil;
 import com.skt.Tmap.TMapData;
-import com.skt.Tmap.TMapGpsManager;
 import com.skt.Tmap.TMapPoint;
 import com.skt.Tmap.TMapPolyLine;
 import com.skt.Tmap.TMapView;
@@ -28,7 +25,33 @@ import org.w3c.dom.NodeList;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.dankook.jalgashoe.Constant.PathInfoResponseParam.*;
+import static com.dankook.jalgashoe.Constant.PathInfoResponseParam.NODE_TYPE_LINE;
+import static com.dankook.jalgashoe.Constant.PathInfoResponseParam.NODE_TYPE_POINT;
+import static com.dankook.jalgashoe.Constant.PathInfoResponseParam.TAG_CATEGORY_ROAD_TYPE;
+import static com.dankook.jalgashoe.Constant.PathInfoResponseParam.TAG_COORDINATES;
+import static com.dankook.jalgashoe.Constant.PathInfoResponseParam.TAG_DESCRIPTION;
+import static com.dankook.jalgashoe.Constant.PathInfoResponseParam.TAG_DIRECTION;
+import static com.dankook.jalgashoe.Constant.PathInfoResponseParam.TAG_FACILITY_NAME;
+import static com.dankook.jalgashoe.Constant.PathInfoResponseParam.TAG_FACILITY_TYPE;
+import static com.dankook.jalgashoe.Constant.PathInfoResponseParam.TAG_INTERSECTION_NAME;
+import static com.dankook.jalgashoe.Constant.PathInfoResponseParam.TAG_LINESTRING;
+import static com.dankook.jalgashoe.Constant.PathInfoResponseParam.TAG_LINE_DISTANCE;
+import static com.dankook.jalgashoe.Constant.PathInfoResponseParam.TAG_LINE_INDEX;
+import static com.dankook.jalgashoe.Constant.PathInfoResponseParam.TAG_LINE_TIME;
+import static com.dankook.jalgashoe.Constant.PathInfoResponseParam.TAG_NEAR_POI_LATITUDE;
+import static com.dankook.jalgashoe.Constant.PathInfoResponseParam.TAG_NEAR_POI_LONGITUDE;
+import static com.dankook.jalgashoe.Constant.PathInfoResponseParam.TAG_NEAR_POI_NAME;
+import static com.dankook.jalgashoe.Constant.PathInfoResponseParam.TAG_NODE_TYPE;
+import static com.dankook.jalgashoe.Constant.PathInfoResponseParam.TAG_PATH_INDEX;
+import static com.dankook.jalgashoe.Constant.PathInfoResponseParam.TAG_PATH_NAME;
+import static com.dankook.jalgashoe.Constant.PathInfoResponseParam.TAG_PLACEMARK;
+import static com.dankook.jalgashoe.Constant.PathInfoResponseParam.TAG_POINT;
+import static com.dankook.jalgashoe.Constant.PathInfoResponseParam.TAG_POINT_INDEX;
+import static com.dankook.jalgashoe.Constant.PathInfoResponseParam.TAG_POINT_TYPE;
+import static com.dankook.jalgashoe.Constant.PathInfoResponseParam.TAG_ROAD_TYPE;
+import static com.dankook.jalgashoe.Constant.PathInfoResponseParam.TAG_TOTAL_DISTANCE;
+import static com.dankook.jalgashoe.Constant.PathInfoResponseParam.TAG_TOTAL_TIME;
+import static com.dankook.jalgashoe.Constant.PathInfoResponseParam.TAG_TURN_TYPE;
 
 /**
  * Created by yeseul on 2018-05-22.
@@ -39,77 +62,37 @@ public class NaviViewModel {
     public final ObservableField<String> currentAddress = new ObservableField<>("현재 위치 찾는중 ...");
 
     private TMapView tMapView;
-    private TMapGpsManager gpsManager;
-    private TMapData tMapData;
+    private TMapData tMapData = new TMapData();
 
     private NaviNavigator navigator;
+
     private PathInfoVO pathInfo;
+    private NavigationVO naviInfo = new NavigationVO();
 
     private List<PathVO> pathList = new ArrayList<>();
+    private List<PathPointVO> pointList = new ArrayList<>();
+    private List<PathBundleVO> nextPathList = new ArrayList<>();
+    private PathBundleVO currentPoint;
 
     public void setNavigator(NaviNavigator navigator) {
         this.navigator = navigator;
     }
 
-    public void start(TMapView tMapView, TMapGpsManager gpsManager, PathInfoVO pathInfo) {
-        this.tMapView = tMapView;
-        this.gpsManager = gpsManager;
-        this.pathInfo = pathInfo;
-        this.tMapData = new TMapData();
+    public NavigationVO getNaviInfo() {
+        return naviInfo;
+    }
 
-        setupMapView();
-        setupGpsManager();
+    public void start(TMapView tMapView, PathInfoVO pathInfo) {
+        this.tMapView = tMapView;
+        this.pathInfo = pathInfo;
+
+        changeCurrentLocation(pathInfo.getStartPoint()); // 현재 위치를 출발점으로 변경
         getPath();
     }
 
-    private void setupMapView() {
-        tMapView.setSKTMapApiKey("b7bfb971-b45e-40d9-8edb-8b2b46bfb04d"); // key 설정
-        tMapView.setZoomLevel(19); // 지도 줌레벨 설정 (7~19)
-        tMapView.setIconVisibility(true); // 현재위치 아이콘 나타내기
-        tMapView.setMapType(TMapView.MAPTYPE_HYBRID); // 일반 지도 사용
-        changeCurrentLocation(pathInfo.getStartPoint()); // 현재 위치를 출발점으로 변경
-
-        tMapView.setCompassMode(false); // 나침반 모드 해제
-        tMapView.setSightVisible(false); // 시야 표출 해제
-
-//        tMapView.setIcon(BitmapUtil.getScaledBitmap(tMapView.getResources(), R.drawable.ic_navigation, 130)); // 현재위치 아이콘
-        tMapView.setTrackingMode(true); // 사용자 위치 따라서 이동하는 모드로
-
-        // 출발, 도착 아이콘 변경
-        Bitmap startIcon = BitmapUtil.writeTextOnDrawable(tMapView.getResources(), R.drawable.ic_location_active, 130, "출발");
-        Bitmap endIcon = BitmapUtil.writeTextOnDrawable(tMapView.getResources(), R.drawable.ic_marker_destination, 130, "도착");
-        tMapView.setTMapPathIcon(startIcon, endIcon);
-    }
-
-    // 위치 정보 설정
-    private void setupGpsManager(){
-        gpsManager.setMinTime(100); // 위치 변경 인식 시간간격 설정
-        gpsManager.setMinDistance(0); // 위치 변경 인식 최소거리 설정
-
-        // GPS_PROVIDER : 위성 기반 위치탐색 (건물, 지하에서 탐색불가)
-        // NETWORK_PROVIDER : 네트워크 기반 위치탐색
-        gpsManager.setProvider(TMapGpsManager.NETWORK_PROVIDER);
-
-        gpsManager.OpenGps(); // gps 추적 시작
-    }
-
-    private void changeCurrentAddress(double latitude, double longitude){
-        tMapData.convertGpsToAddress(latitude, longitude, new TMapData.ConvertGPSToAddressListenerCallback() {
-            @Override
-            public void onConvertToGPSToAddress(String s) {
-                currentAddress.set(s);
-            }
-        });
-    }
-
     public void changeCurrentLocation(TMapPoint location){
-        tMapView.setCenterPoint(location.getLongitude(), location.getLatitude(), true); // 현재위치로 화면 이동
-        tMapView.setLocationPoint(location.getLongitude(), location.getLatitude()); // 현재 위치 변경
-        changeCurrentAddress(location.getLatitude(), location.getLongitude());
-        tMapView.setRotate(tMapView.getRotate() - 45);
-        tMapView.setMarkerRotate(true);
-        tMapView.setPathRotate(true);
-        tMapView.setPOIRotate(true);
+        MapUtil.changeCurrentLocation(tMapView, location);
+        MapUtil.changeCurrentAddress(currentAddress, location);
     }
 
     private void getPath() {
@@ -119,15 +102,39 @@ public class NaviViewModel {
                     @Override
                     public void onFindPathDataAll(Document document) {
                         parseDocument(document);
-                        drawLine();
+                        startNavigation();
                     }
                 });
     }
 
+    // pathList에 저장된 경로를 탐색한다
+    private void startNavigation() {
+        drawLine();
+        getPointList();
+
+        navigator.startNavigation();
+        changeToNextPoint();
+    }
+
+    private void changeToNextPoint(){
+        do{
+            currentPoint = nextPathList.remove(0);
+        } while(currentPoint.getLineList().size() == 0);
+
+        naviInfo.setTurnType(currentPoint.getPoint().getTurnType()); // 회전 정보
+        naviInfo.setTurnName(currentPoint.getPoint().getIntersectName()); // 교차로 이름
+
+        int distance = 0;
+        for(PathLineVO line : currentPoint.getLineList()){
+            distance += line.getDistance();
+        }
+        naviInfo.setTurnDistance(distance); // 교차로까지 거리
+    }
+
     private void drawLine() {
         TMapPolyLine line = new TMapPolyLine();
-        line.setLineWidth(30);
-        line.setLineColor(tMapView.getResources().getColor(R.color.coral));
+        line.setLineWidth(10);
+        line.setLineColor(Color.BLACK);
 
         for(PathVO path : pathList){
             List<TMapPoint> pointList = path.getPoints();
@@ -136,6 +143,53 @@ public class NaviViewModel {
             }
         }
         tMapView.addTMapPath(line);
+    }
+
+    private void getPointList() {
+        int lineCount = 0;
+
+        for(int i = 0 ; i < pathList.size() ; i++){
+            PathVO path = pathList.get(i);
+
+            if(path instanceof PathLineVO){
+                lineCount++;
+            }
+
+            if(path instanceof PathPointVO){
+                PathBundleVO bundle = new PathBundleVO();
+                bundle.setPoint((PathPointVO) path);
+                for(int j = i - lineCount ; j < i ; j++){
+                    if(pathList.get(j) instanceof PathLineVO){
+                        bundle.addLineList((PathLineVO) pathList.get(j));
+                    }
+                }
+                nextPathList.add(bundle);
+                lineCount = 0;
+            }
+        }
+    }
+
+    public void calculateCurrentDistance(TMapPoint location) {
+        tMapData.findPathDataAllType(TMapData.TMapPathType.PEDESTRIAN_PATH,
+                location, currentPoint.getPoint().getPoints().get(0),
+                new TMapData.FindPathDataAllListenerCallback() {
+                    @Override
+                    public void onFindPathDataAll(Document document) {
+                        Element root = document.getDocumentElement(); // 최상위 node
+
+                        String dist = root.getElementsByTagName(TAG_TOTAL_DISTANCE).item(0).getTextContent(); // 총 거리
+                        int distance = Integer.parseInt(dist);
+                        naviInfo.setTurnDistance(distance);
+                        processDistance(distance);
+                    }
+                });
+    }
+
+    private void processDistance(int distance) {
+        if(distance < 5){
+            navigator.showSnackBar("point 도착");
+            changeToNextPoint();
+        }
     }
 
     private void parseDocument(Document document){
@@ -224,4 +278,5 @@ public class NaviViewModel {
         }
         return pointList;
     }
+
 }

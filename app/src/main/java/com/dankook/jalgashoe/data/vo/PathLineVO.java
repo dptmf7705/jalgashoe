@@ -1,7 +1,5 @@
 package com.dankook.jalgashoe.data.vo;
 
-import com.skt.Tmap.TMapPoint;
-
 /**
  * Created by yeseul on 2018-05-21.
  */

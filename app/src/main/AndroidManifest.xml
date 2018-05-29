@@ -20,18 +20,26 @@
         android:theme="@style/AppTheme">
         <activity android:name=".launch.login.LoginActivity" />
         <activity android:name=".launch.join.JoinActivity" />
-        <activity android:name=".profile.setting.SettingActivity" />
-        <activity android:name=".launch.LaunchActivity" />
-        <activity android:name=".profile.setting.DeviceListActivity" />
-        <activity android:name=".searchPoi.SearchActivity" />
-        <activity android:name=".map.MapActivity">
+        <activity android:name=".profile.setting.SettingActivity"
+            android:theme="@style/ActionBarTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".map.navi.NaviActivity"></activity>
+        <activity android:name=".launch.LaunchActivity" />
+        <activity android:name=".profile.setting.DeviceListActivity" />
+        <activity android:name=".searchPoi.SearchActivity">
+        </activity>
+        <activity android:name=".map.MapActivity">
+        </activity>
+        <activity android:name=".navi.NaviActivity"></activity>
+
+        <service
+            android:name=".service.LocationService"
+            android:enabled="true"
+            android:exported="true"></service>
     </application>
 
 </manifest>

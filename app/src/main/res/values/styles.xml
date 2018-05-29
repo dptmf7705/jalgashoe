@@ -8,8 +8,8 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
-    <!-- No action bar 테마 -->
-    <style name="NoActionBarTheme" parent="Theme.AppCompat.Light.NoActionBar">
+    <!-- action bar 테마 -->
+    <style name="ActionBarTheme" parent="Theme.AppCompat.Light">
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>

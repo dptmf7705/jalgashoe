@@ -10,7 +10,7 @@ import android.widget.ImageView;
 import com.dankook.jalgashoe.BaseActivity;
 import com.dankook.jalgashoe.R;
 import com.dankook.jalgashoe.databinding.ActivityMapBinding;
-import com.dankook.jalgashoe.map.navi.NaviActivity;
+import com.dankook.jalgashoe.navi.NaviActivity;
 import com.dankook.jalgashoe.searchPoi.SearchActivity;
 import com.dankook.jalgashoe.util.SnackbarUtils;
 import com.skt.Tmap.TMapGpsManager;

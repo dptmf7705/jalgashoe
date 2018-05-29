@@ -11,13 +11,13 @@ import com.skt.Tmap.TMapPoint;
  */
 
 public class PathInfoVO extends BaseObservable {
-    private TMapPoint startPoint;
-    private TMapPoint endPoint;
-    private String startAddress;
-    private String endAddress;
-    private String lineDistance;
-    private String pathDistance;
-    private String pathTime;
+    private TMapPoint startPoint; // 출발지 위, 경도
+    private TMapPoint endPoint; // 도착지 위, 경도
+    private String startAddress; // 출발지 주소
+    private String endAddress; // 도착지 주소
+    private String lineDistance; // 직선 거리
+    private String pathDistance; // 보행 거리
+    private String pathTime; // 예상 소요 시간
 
     @Bindable
     public TMapPoint getStartPoint() {

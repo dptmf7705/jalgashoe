@@ -13,6 +13,7 @@ import com.dankook.jalgashoe.data.vo.PathInfoVO;
 import com.dankook.jalgashoe.searchPoi.SearchActivity;
 import com.dankook.jalgashoe.util.BitmapUtil;
 import com.dankook.jalgashoe.util.DateUtil;
+import com.dankook.jalgashoe.util.MapUtil;
 import com.skt.Tmap.TMapData;
 import com.skt.Tmap.TMapGpsManager;
 import com.skt.Tmap.TMapInfo;
@@ -104,26 +105,16 @@ public class MapViewModel {
          gpsManager.OpenGps(); // gps 추적 시작
     }
 
+    // 현재 위치 변경
     public void changeCurrentLocation(TMapPoint location){
         // 출발지가 설정되지 않은 경우 현재위치를 출발지로 설정한다
         if(pathInfo.getStartAddress() == null) {
             changeDeparture(location, true);
             gpsManager.CloseGps();
         }
-        mapView.setCenterPoint(location.getLongitude(), location.getLatitude(), true); // 현재위치로 화면 이동
-        mapView.setLocationPoint(location.getLongitude(), location.getLatitude()); // 현재 위치 변경
+        MapUtil.changeCurrentLocation(mapView, location);
+        MapUtil.changeCurrentAddress(currentAddress, location);
         isMyLocation.set(true);
-
-        changeCurrentAddress(location.getLatitude(), location.getLongitude()); // 현위치 주소 변경
-    }
-
-    private void changeCurrentAddress(double latitude, double longitude){
-        tMapData.convertGpsToAddress(latitude, longitude, new TMapData.ConvertGPSToAddressListenerCallback() {
-            @Override
-            public void onConvertToGPSToAddress(String s) {
-                currentAddress.set(s);
-            }
-        });
     }
 
     public void onMyLocationClick(){
@@ -132,41 +123,23 @@ public class MapViewModel {
     }
 
     public void onCompassChange(){
-        boolean bool = !(mapView.getIsCompass());
+        boolean bool = !(mapView.getIsCompass()); // 나침반 모드 토글
 
-        mapView.setCompassMode(bool); // 나침반 모드
-        mapView.setSightVisible(bool); // 시야 표출
+        mapView.setCompassMode(bool); // 나침반 모드 설정, 해제
+        mapView.setSightVisible(bool); // 시야 표출 설정, 해제
         isCompassMode.set(bool);
     }
 
     private void changeDeparture(TMapPoint location, final boolean isCurrent){
         pathInfo.setStartPoint(location);
-        tMapData.convertGpsToAddress(location.getLatitude(), location.getLongitude(), new TMapData.ConvertGPSToAddressListenerCallback() {
-            @Override
-            public void onConvertToGPSToAddress(String s) {
-                if(isCurrent) {
-                    pathInfo.setStartAddress("현재 위치 : " + s);
-                } else {
-                    pathInfo.setStartAddress(s);
-                }
-            }
-        });
         mapView.setCenterPoint(location.getLongitude(), location.getLatitude());
+        MapUtil.convertGpsToAddress(pathInfo, location, isCurrent, MapUtil.START_ADDRESS);
     }
 
     private void changeDestination(TMapPoint location, final boolean isCurrent){
         pathInfo.setEndPoint(location);
-        tMapData.convertGpsToAddress(location.getLatitude(), location.getLongitude(), new TMapData.ConvertGPSToAddressListenerCallback() {
-            @Override
-            public void onConvertToGPSToAddress(String s) {
-                if(isCurrent) {
-                    pathInfo.setEndAddress("현재 위치 : " + s);
-                } else {
-                    pathInfo.setEndAddress(s);
-                }
-            }
-        });
         mapView.setCenterPoint(location.getLongitude(), location.getLatitude());
+        MapUtil.convertGpsToAddress(pathInfo, location, isCurrent, MapUtil.END_ADDRESS);
     }
 
     public void onClickSearchBar(){

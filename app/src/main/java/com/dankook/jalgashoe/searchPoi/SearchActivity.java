@@ -85,10 +85,10 @@ public class SearchActivity extends BaseActivity<ActivitySearchBinding> implemen
             @Override
             public boolean onEditorAction(TextView textView, int actionId, KeyEvent keyEvent) {
                 boolean bool = false;
-                if(actionId == EditorInfo.IME_ACTION_SEARCH){
+                if(actionId == EditorInfo.IME_ACTION_SEARCH){ // 키보드 검색 버튼 누른 경우
                     try {
-                        String sql = SQL_INSERT_INTO_SEARCH
-                                + "values('" + textView.getText().toString() + "', '" + DateUtil.getCurrentDate() + "');";
+                        String sql = SQL_INSERT_INTO_SEARCH // insert 문 실행
+                                + "values('" + textView.getText().toString() + "', '" + DateUtil.getCurrentDate() + "');"; // 키보드 입력값과 시스템에서 현재 시간을 받아온다
                         database.execSQL(sql);
                     } catch (SQLiteException e){
                         showSnackBar("Fail : INSERT_INTO_SEARCH");
@@ -135,9 +135,10 @@ public class SearchActivity extends BaseActivity<ActivitySearchBinding> implemen
         binding.historyList.addFooterView(footer);
     }
 
+    // 최근 검색어 목록을 DB에서 받아온다
     private List<SearchItemVO> getSearchHistory(){
         List<SearchItemVO> searchList = new ArrayList<>();
-        dbHelper = new SQLiteHelper(this, DATABASE_NAME_SEARCH, null, 1);
+        dbHelper = new SQLiteHelper(this, DATABASE_NAME_SEARCH, null, 1); // search DB
 
         try {
             database = dbHelper.getWritableDatabase();
@@ -146,10 +147,10 @@ public class SearchActivity extends BaseActivity<ActivitySearchBinding> implemen
             return searchList;
         }
 
-        Cursor cursor = database.rawQuery(SQL_SELECT_SEARCH_LIST, null);
+        Cursor cursor = database.rawQuery(SQL_SELECT_SEARCH_LIST, null); // select 문 실행
         while (cursor.moveToNext()) {
-            SearchItemVO vo = new SearchItemVO(cursor.getInt(0), cursor.getString(1), cursor.getString(2));
-            searchList.add(vo);
+            SearchItemVO vo = new SearchItemVO(cursor.getInt(0), cursor.getString(1), cursor.getString(2)); // id(PK), 검색 단어, 날짜 정보 가져옴
+            searchList.add(vo); // 리스트에 추가
         }
 
         return searchList;

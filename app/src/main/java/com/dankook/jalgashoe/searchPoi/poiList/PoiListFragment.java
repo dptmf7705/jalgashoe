@@ -78,17 +78,28 @@ public class PoiListFragment extends BaseFragment<FragmentPoiListBinding> implem
         binding.poiListView.setAdapter(adapter);
         binding.poiListView.setEmptyView(binding.textEmpty);
 
+        // 리스트 아이템 클릭
         adapter.setItemClickListener(new PoiListAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {
+                // 원래 선택 되있던 마크 까만색으로 변경
                 viewModel.getTMapView().getMarkerItemFromID(viewModel.selectedPoi.get().getPOIID())
-                        .setIcon(BitmapUtil.writeTextOnDrawable(getResources(), R.drawable.ic_marker_deactive, 100, viewModel.poiItems.indexOf(viewModel.selectedPoi.get()) + 1));
+                        .setIcon(BitmapUtil.writeTextOnDrawable(
+                                getResources(),
+                                R.drawable.ic_marker_deactive,
+                                100,
+                                viewModel.poiItems.indexOf(viewModel.selectedPoi.get()) + 1));
 
-                viewModel.setSelectedPoi(position);
+                viewModel.setSelectedPoi(position); // 현재 선택 마크 변경
+                // 현재 선택된 마크 빨간색으로 변경
                 viewModel.getTMapView().getMarkerItemFromID(viewModel.selectedPoi.get().getPOIID())
-                        .setIcon(BitmapUtil.writeTextOnDrawable(getResources(), R.drawable.ic_marker, 120, position+1));
+                        .setIcon(BitmapUtil.writeTextOnDrawable(
+                                getResources(),
+                                R.drawable.ic_marker,
+                                120,
+                                position+1));
 
-                adapter.notifyDataSetChanged();
+                adapter.notifyDataSetChanged(); // 변경 사항 저장
             }
         });
     }

@@ -1,12 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
     <data>
         <variable
             name="viewModel"
-            type="com.dankook.jalgashoe.map.navi.NaviViewModel"/>
+            type="com.dankook.jalgashoe.navi.NaviViewModel"/>
         <variable
             name="path"
             type="com.dankook.jalgashoe.data.vo.PathInfoVO"/>
+        <variable
+            name="navi"
+            type="com.dankook.jalgashoe.data.vo.NavigationVO"/>
     </data>
 
     <RelativeLayout
@@ -30,9 +34,9 @@
             <ImageView
                 style="@style/drawableImageButtonStyle"
                 android:layout_margin="10dp"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:src="@drawable/ic_turn_left"/>
+                android:layout_width="wrap_content"
+                android:layout_height="60dp"
+                app:turnType="@{navi.turnType}"/>
 
             <LinearLayout
                 android:layout_margin="5dp"
@@ -46,14 +50,14 @@
                     android:textStyle="bold"
                     android:textSize="33sp"
                     android:textColor="@android:color/white"
-                    android:text="30m"/>
+                    android:text="@{String.valueOf(navi.turnDistance) + `m`}"/>
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textStyle="bold"
                     android:textSize="15sp"
-                    android:text="미금역 사거리"
+                    android:text="@{navi.turnName}"
                     android:textColor="@android:color/white"/>
 
             </LinearLayout>

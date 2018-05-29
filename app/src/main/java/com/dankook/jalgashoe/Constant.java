@@ -28,6 +28,7 @@ public class Constant {
             = "insert into search(text, date) ";
 
     public static class PathInfoResponseParam {
+
         public static final String TAG_TOTAL_DISTANCE = "tmap:totalDistance"; // 총 거리(m)
         public static final String TAG_TOTAL_TIME = "tmap:totalTime"; // 예상 소요시간(초)
         public static final String TAG_PLACEMARK = "Placemark"; // 경로정보
@@ -64,5 +65,17 @@ public class Constant {
         public static final String TAG_LINE_TIME = "tmap:time"; // 구간 시간
         public static final String TAG_ROAD_TYPE = "tmap:roadType"; // 도로 타입
         public static final String TAG_CATEGORY_ROAD_TYPE = "tmap:categoryRoadType"; // 특화거리 타입
+    }
+
+    public static class BluetoothCode{
+
+        public static final String CODE_ERROR = "0"; // 경로이탈
+        public static final String CODE_START = "1"; // 출발
+        public static final String CODE_END = "1"; // 도착
+
+        public static final String CODE_TURN_50M = "2"; // 회전 50M 전
+        public static final String CODE_TURN_20M = "3"; // 회전 20M 전
+        public static final String CODE_TURN_5M = "4"; // 회전 5M 전
+        public static final String CODE_TURN_DONE = "5"; // 회전 완료
     }
 }
